@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodexplorer/food.dart';
  
 void main() => runApp(MyApp());
  
@@ -42,25 +43,22 @@ class DetailScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(8),
-                children: <Widget>[
-                  Container(
-                    height: 50,
-                    color: Colors.amber[600],
-                    child: const Center(child: Text('Entry A')),
-                  ),
-                  Container(
-                    height: 50,
-                    color: Colors.amber[500],
-                    child: const Center(child: Text('Entry B')),
-                  ),
-                  Container(
-                    height: 50,
-                    color: Colors.amber[100],
-                    child: const Center(child: Text('Entry C')),
-                  ),
-                ],
+              child: FutureBuilder<String>(
+                future:
+                    DefaultAssetBundle.of(context).loadString('assets/DATA.json'),
+                builder: (context, snapshot) {
+                  if(snapshot.hasData){
+                    final List<Food> foods = parseFoods(snapshot.data);
+                    return ListView.builder(
+                      itemCount: foods.length,
+                      itemBuilder: (context, index) {
+                        return _buildArticleItem(context, foods[index]);
+                      },
+                    );  
+                  }
+                  return CircularProgressIndicator();
+                                                              
+                },
               ),
             )
           ],
@@ -68,4 +66,17 @@ class DetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildArticleItem(BuildContext context, Food food) {
+  return ListTile(
+    contentPadding:
+        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    leading: Image.network(
+      food.image,
+      width: 100,
+    ),
+    title: Text(food.name),
+    subtitle: Text(food.name),
+  );
 }
