@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:foodexplorer/detail_food.dart';
 import 'package:foodexplorer/food.dart';
  
 void main() => runApp(MyApp());
@@ -8,13 +9,22 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Food Explorer',
-      theme: ThemeData(),
+      theme: ThemeData(fontFamily: 'Quicksand'),
       home: DetailScreen(),
+      initialRoute: DetailScreen.routeName,
+      routes: {
+        DetailScreen.routeName: (context) => DetailScreen(),
+        DetailFood.routeName: (context) => DetailFood(
+              food: ModalRoute.of(context)?.settings.arguments as Food,
+            ),
+      },
     );
   }
 }
- 
+
 class DetailScreen extends StatelessWidget {
+  static const routeName = '/food_list';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,20 +40,26 @@ class DetailScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Food Explorer',
-                    style: TextStyle(fontSize: 48),
+                    style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
                     height: 10,
                   ),
                   Text(
                     'Temukan makanan dan restoran sesuai cita rasa lokal',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                  )
+                    style: TextStyle(fontSize: 16, color: Colors.grey[600], fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text('1 Difavorit.'),
                 ],
               ),
             ),
             Expanded(
-              child: FutureBuilder<String>(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+                child: FutureBuilder<String>(
                 future:
                     DefaultAssetBundle.of(context).loadString('assets/DATA.json'),
                 builder: (context, snapshot) {
@@ -52,7 +68,7 @@ class DetailScreen extends StatelessWidget {
                     return ListView.builder(
                       itemCount: foods.length,
                       itemBuilder: (context, index) {
-                        return _buildArticleItem(context, foods[index]);
+                        return _buildFoodItem(context, foods[index]);
                       },
                     );  
                   }
@@ -60,6 +76,7 @@ class DetailScreen extends StatelessWidget {
                                                               
                 },
               ),
+              )
             )
           ],
         )
@@ -68,15 +85,94 @@ class DetailScreen extends StatelessWidget {
   }
 }
 
-Widget _buildArticleItem(BuildContext context, Food food) {
-  return ListTile(
-    contentPadding:
-        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-    leading: Image.network(
-      food.image,
-      width: 100,
+Widget _buildFoodItem(BuildContext context, Food food) {
+  return Card(
+    margin: EdgeInsets.symmetric(vertical: 16),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8.0),
     ),
-    title: Text(food.name),
-    subtitle: Text(food.name),
+    child: InkWell(
+          splashColor: Colors.blue.withAlpha(30),
+          onTap: () {
+            Navigator.pushNamed(context, DetailFood.routeName,
+            arguments: food);
+          },
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 200,
+                width: MediaQuery.of(context).size.width,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(8.0), topRight: Radius.circular(8.0)),
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: Stack(
+                      alignment: const Alignment(-1, 0.6),
+                      children: [
+                        Container(
+                          child: Image.network(
+                            food.image,
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(32),
+                            child: Text(
+                              food.name,
+                              style: TextStyle(
+                                fontSize: 48,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
+                          )
+                        ),
+                      ],
+                    )
+                  )
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.all(16),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.location_on,
+                      color: Colors.pink,
+                      size: 18.0,
+                      semanticLabel: 'Location',
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(food.city, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),),
+                    SizedBox(
+                      width: 15,
+                    ),
+                    Icon(
+                      Icons.star,
+                      color: Colors.orange,
+                      size: 18.0,
+                      semanticLabel: 'Rating',
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(food.rating.toString(), style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),),
+                  ],
+                )
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Text(food.shortDesc, style: TextStyle(height: 1.5),),
+              )
+            ],
+          )
+        ),
   );
 }

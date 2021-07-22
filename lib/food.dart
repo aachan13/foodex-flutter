@@ -7,6 +7,7 @@ class Food{
   late String description;
   late String city;
   late String image;
+  late String shortDesc;
   late num rating;
  
   Food({
@@ -15,7 +16,8 @@ class Food{
     required this.description,
     required this.city,
     required this.image,
-    required this.rating
+    required this.shortDesc,
+    required this.rating,
   });
 
   Food.fromJson(Map<String, dynamic> food) {
@@ -24,6 +26,7 @@ class Food{
     description = food['description'];
     city = food['city'];
     image = food['pictureId'];
+    shortDesc = food['description'].substring(0, 150) + '...';
     rating = food['rating'];
   }
   
@@ -36,4 +39,3 @@ List<Food> parseFoods(String? json) {
   final List parsed = jsonDecode(json);
   return parsed.map((json) => Food.fromJson(json)).toList();
 }
-
