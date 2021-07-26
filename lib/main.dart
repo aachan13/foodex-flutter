@@ -10,10 +10,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Food Explorer',
       theme: ThemeData(fontFamily: 'Quicksand'),
-      home: DetailScreen(),
-      initialRoute: DetailScreen.routeName,
+      home: Home(),
+      initialRoute: _HomeState.routeName,
       routes: {
-        DetailScreen.routeName: (context) => DetailScreen(),
+        _HomeState.routeName: (context) => Home(),
         DetailFood.routeName: (context) => DetailFood(
               food: ModalRoute.of(context)?.settings.arguments as Food,
             ),
@@ -22,12 +22,35 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class DetailScreen extends StatelessWidget {
+class Home extends StatefulWidget {
+ 
+    @override
+    _HomeState createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
   static const routeName = '/food_list';
+  int favoriteCount = 0;
+
+  void increaseFavCount() {
+    setState(() {
+      favoriteCount++;
+      final snackBar = SnackBar(
+        content: Text('Fav btn clicked $favoriteCount times'),
+        duration: Duration(milliseconds: 500),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: increaseFavCount,
+        child: const Icon(Icons.favorite_border),
+        backgroundColor: Color.fromRGBO(234, 91, 73, 1),
+      ),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,7 +75,10 @@ class DetailScreen extends StatelessWidget {
                   SizedBox(
                     height: 10,
                   ),
-                  Text('1 Difavorit.'),
+                  Chip(
+                    backgroundColor: Color.fromRGBO(234, 91, 73, 1),
+                    label: Text('$favoriteCount Difavorit.', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
+                  )
                 ],
               ),
             ),
@@ -170,7 +196,7 @@ Widget _buildFoodItem(BuildContext context, Food food) {
               Container(
                 margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: Text(food.shortDesc, style: TextStyle(height: 1.5),),
-              )
+              ),
             ],
           )
         ),
